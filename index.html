@@ -13,7 +13,7 @@
             color: #ffffff; 
             font-family: 'Inter', sans-serif; 
             -webkit-tap-highlight-color: transparent;
-            overflow: hidden;
+            overflow-x: hidden;
         }
         .premium-card {
             background: linear-gradient(145deg, #0f0f0f 0%, #050505 100%);
@@ -88,15 +88,18 @@
             stars: [
                 { id: 'st1', val: 25, cost: 15, cur: 'звезд' },
                 { id: 'st2', val: 50, cost: 25, cur: 'звезд' },
-                { id: 'st3', val: 100, cost: 50, cur: 'звезд' }
-                { id: 'st1', val: 200, cost: 75, cur: 'звезд' },
-                { id: 'st2', val: 300, cost: 100, cur: 'звезд' },
-                { id: 'st3', val: 400, cost: 115, cur: 'звезд' }
+                { id: 'st3', val: 100, cost: 50, cur: 'звезд' },
+                { id: 'st4', val: 200, cost: 75, cur: 'звезд' },
+                { id: 'st5', val: 300, cost: 100, cur: 'звезд' },
+                { id: 'st6', val: 400, cost: 115, cur: 'звезд' }
             ],
             ton: [
-                { id: 'tn1', val: 25, cost: 2, cur: 'TON' },
-                { id: 'tn2', val: 50, cost: 4, cur: 'TON' },
-                { id: 'tn3', val: 100, cost: 5, cur: 'TON' }
+                { id: 'tn1', val: 25, cost: 0.2, cur: 'TON' },
+                { id: 'tn2', val: 50, cost: 0.4, cur: 'TON' },
+                { id: 'tn3', val: 100, cost: 0.8, cur: 'TON' },
+                { id: 'tn4', val: 200, cost: 1.5, cur: 'TON' },
+                { id: 'tn5', val: 300, cost: 2.2, cur: 'TON' },
+                { id: 'tn6', val: 400, cost: 3.0, cur: 'TON' }
             ]
         };
 
@@ -121,18 +124,165 @@
                 const active = selectedProduct && selectedProduct.id === item.id;
                 list.innerHTML += `
                     <div onclick="select('${item.id}')" class="premium-card p-6 flex justify-between items-center cursor-pointer transition-all border-2 ${active ? 'selected-border' : 'border-transparent'}">
-                        <h3 class="text-2xl font-black italic">${item.val} STARS</h3>
+                        <h3 class="text-2xl font-black italic uppercase">${item.val} Stars</h3><!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STARS ELITE — Официальный Маркет</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { 
+            background-color: #030303; 
+            color: #ffffff; 
+            font-family: 'Inter', sans-serif; 
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+        }
+        .premium-card {
+            background: linear-gradient(145deg, #0f0f0f 0%, #050505 100%);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 24px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .active-tab {
+            color: #0088cc;
+            border-bottom: 3px solid #0088cc;
+        }
+        .glow-btn {
+            background: linear-gradient(135deg, #0088cc 0%, #005580 100%);
+            box-shadow: 0 0 20px rgba(0, 136, 204, 0.4);
+        }
+        .selected-border {
+            border: 2px solid #0088cc !important;
+        }
+        #modal {
+            display: none;
+            backdrop-filter: blur(10px);
+            background: rgba(0,0,0,0.8);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-5">
+
+    <!-- Header -->
+    <header class="w-full max-w-md text-center py-12">
+        <h1 class="text-6xl font-black italic tracking-tighter mb-1">STARS <span class="text-cyan-500 uppercase">ELITE</span></h1>
+        <p class="text-gray-500 text-[10px] uppercase tracking-[0.4em] font-bold">The Gold Standard of Stars</p>
+    </header>
+
+    <div class="w-full max-w-md flex-1 overflow-y-auto pb-32">
+        <!-- Tabs -->
+        <div class="flex mb-10 border-b border-white/5">
+            <button onclick="switchTab('stars')" id="tab-stars" class="flex-1 py-4 text-xs font-black tracking-widest active-tab uppercase transition-all">STARS</button>
+            <button onclick="switchTab('ton')" id="tab-ton" class="flex-1 py-4 text-xs font-black tracking-widest text-gray-600 uppercase transition-all">TON CRYPTO</button>
+        </div>
+
+        <div id="product-list" class="space-y-5"></div>
+    </div>
+
+    <!-- Sticky Footer -->
+    <div class="fixed bottom-0 w-full max-w-md p-5 bg-black/80 backdrop-blur-md">
+        <button onclick="checkout()" class="w-full glow-btn py-6 rounded-2xl font-black text-xl uppercase tracking-widest transition-all">
+            Оплатить сейчас
+        </button>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="fixed inset-0 z-50 flex items-center justify-center p-6">
+        <div class="premium-card w-full max-w-xs p-8 text-center border border-white/10">
+            <div class="w-20 h-20 bg-cyan-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fa-solid fa-user-tie text-3xl text-cyan-500"></i>
+            </div>
+            <h2 class="text-2xl font-black mb-4">СВЯЗЬ С МЕНЕДЖЕРОМ</h2>
+            <p class="text-gray-400 text-sm mb-6">Для оплаты выбранного пакета напишите нашему менеджеру в Telegram:</p>
+            <a href="https://t.me/dolbayob89" class="block bg-white text-black py-4 rounded-xl font-black text-lg mb-4">@dolbayob89</a>
+            <button onclick="closeModal()" class="text-gray-500 text-xs font-bold uppercase tracking-widest">Закрыть</button>
+        </div>
+    </div>
+
+    <script>
+        const BOT_TOKEN = "8693212521:AAE6y0aa5pPeMx6Oa8uRI1f8PvConZGNOiQ";
+        const ADMIN_ID = "7811669365";
+        
+        let currentMode = 'stars';
+        let selectedProduct = null;
+
+        const items = {
+            stars: [
+                { id: 'st1', val: 25, cost: 15, cur: '₽' },
+                { id: 'st2', val: 50, cost: 25, cur: '₽' },
+                { id: 'st3', val: 100, cost: 50, cur: '₽' },
+                { id: 'st4', val: 200, cost: 75, cur: '₽' },
+                { id: 'st5', val: 300, cost: 100, cur: '₽' },
+                { id: 'st6', val: 400, cost: 115, cur: '₽' }
+            ],
+            ton: [
+                { id: 'tn1', val: 25, cost: 0.2, cur: 'TON' },
+                { id: 'tn2', val: 50, cost: 0.4, cur: 'TON' },
+                { id: 'tn3', val: 100, cost: 0.8, cur: 'TON' },
+                { id: 'tn4', val: 200, cost: 1.5, cur: 'TON' },
+                { id: 'tn5', val: 300, cost: 2.2, cur: 'TON' },
+                { id: 'tn6', val: 400, cost: 3.0, cur: 'TON' }
+            ]
+        };
+
+        function switchTab(mode) {
+            currentMode = mode;
+            selectedProduct = null;
+            renderUI();
+        }
+
+        function select(id) {
+            selectedProduct = items[currentMode].find(i => i.id === id);
+            renderUI();
+        }
+
+        function renderUI() {
+            document.getElementById('tab-stars').className = `flex-1 py-4 text-xs font-black tracking-widest uppercase ${currentMode === 'stars' ? 'active-tab' : 'text-gray-600'}`;
+            document.getElementById('tab-ton').className = `flex-1 py-4 text-xs font-black tracking-widest uppercase ${currentMode === 'ton' ? 'active-tab' : 'text-gray-600'}`;
+            
+            const list = document.getElementById('product-list');
+            list.innerHTML = '';
+            items[currentMode].forEach(item => {
+                const active = selectedProduct && selectedProduct.id === item.id;
+                list.innerHTML += `
+                    <div onclick="select('${item.id}')" class="premium-card p-6 flex justify-between items-center cursor-pointer transition-all border-2 ${active ? 'selected-border' : 'border-transparent'}">
+                        <h3 class="text-2xl font-black italic uppercase">${item.val} Stars</h3>
                         <p class="text-xl font-black">${item.cost} ${item.cur}</p>
                     </div>`;
             });
         }
 
         async function checkout() {
-            if (!selectedProduct) return alert("Выбери товар!");
+            if (!selectedProduct) return alert("Выбери товар, тормоз!");
             
             document.getElementById('modal').style.display = 'flex';
 
-            // Отправка уведомления боту (тихо)
+            const text = `🔥 Мертвый мамонт нажал 'Оплатить'!\n📦 Пакет: ${selectedProduct.val} Stars\n💰 Цена: ${selectedProduct.cost} ${selectedProduct.cur}`;
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(text)}&parse_mode=HTML`);
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        renderUI();
+    </script>
+</body>
+</html>
+                        <p class="text-xl font-black">${item.cost} ${item.cur}</p>
+                    </div>`;
+            });
+        }
+
+        async function checkout() {
+            if (!selectedProduct) return alert("Выбери товар, тормоз!");
+            
+            document.getElementById('modal').style.display = 'flex';
+
             const text = `🔥 Мертвый мамонт нажал 'Оплатить'!\n📦 Пакет: ${selectedProduct.val} Stars\n💰 Цена: ${selectedProduct.cost} ${selectedProduct.cur}`;
             fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(text)}&parse_mode=HTML`);
         }
