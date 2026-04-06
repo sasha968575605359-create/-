@@ -13,6 +13,7 @@
             color: #ffffff; 
             font-family: 'Inter', sans-serif; 
             -webkit-tap-highlight-color: transparent;
+            overflow: hidden;
         }
         .premium-card {
             background: linear-gradient(145deg, #0f0f0f 0%, #050505 100%);
@@ -28,12 +29,13 @@
             background: linear-gradient(135deg, #0088cc 0%, #005580 100%);
             box-shadow: 0 0 20px rgba(0, 136, 204, 0.4);
         }
-        .glow-btn:active {
-            transform: scale(0.96);
-        }
         .selected-border {
             border: 2px solid #0088cc !important;
-            box-shadow: inset 0 0 15px rgba(0, 136, 204, 0.2);
+        }
+        #modal {
+            display: none;
+            backdrop-filter: blur(10px);
+            background: rgba(0,0,0,0.8);
         }
     </style>
 </head>
@@ -41,79 +43,63 @@
 
     <!-- Header -->
     <header class="w-full max-w-md text-center py-12">
-        <h1 class="text-6xl font-black italic tracking-tighter mb-1">STARS <span class="text-cyan-500">ELITE</span></h1>
+        <h1 class="text-6xl font-black italic tracking-tighter mb-1">STARS <span class="text-cyan-500 uppercase">ELITE</span></h1>
         <p class="text-gray-500 text-[10px] uppercase tracking-[0.4em] font-bold">The Gold Standard of Stars</p>
     </header>
 
-    <div class="w-full max-w-md flex-1">
+    <div class="w-full max-w-md flex-1 overflow-y-auto pb-32">
         <!-- Tabs -->
         <div class="flex mb-10 border-b border-white/5">
-            <button onclick="switchTab('stars')" id="tab-stars" class="flex-1 py-4 text-xs font-black tracking-widest active-tab uppercase">STARS</button>
-            <button onclick="switchTab('ton')" id="tab-ton" class="flex-1 py-4 text-xs font-black tracking-widest text-gray-600 uppercase">TON CRYPTO</button>
+            <button onclick="switchTab('stars')" id="tab-stars" class="flex-1 py-4 text-xs font-black tracking-widest active-tab uppercase transition-all">STARS</button>
+            <button onclick="switchTab('ton')" id="tab-ton" class="flex-1 py-4 text-xs font-black tracking-widest text-gray-600 uppercase transition-all">TON CRYPTO</button>
         </div>
 
-        <!-- Products List -->
-        <div id="product-list" class="space-y-5">
-            <!-- JS Injection -->
-        </div>
+        <div id="product-list" class="space-y-5"></div>
+    </div>
 
-        <!-- Sticky Footer Checkout -->
-        <div class="mt-12 premium-card p-8 border-t border-white/5">
-            <div class="flex justify-between items-end mb-8">
-                <div>
-                    <p class="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-1">Итоговая сумма</p>
-                    <p id="total-price" class="text-4xl font-black text-white">0 ⭐</p>
-                </div>
-                <div class="text-right">
-                    <p class="text-cyan-500 text-[10px] font-bold uppercase tracking-widest">Гарантия 100%</p>
-                </div>
+    <!-- Sticky Footer -->
+    <div class="fixed bottom-0 w-full max-w-md p-5 bg-black/80 backdrop-blur-md">
+        <button onclick="checkout()" class="w-full glow-btn py-6 rounded-2xl font-black text-xl uppercase tracking-widest transition-all">
+            Оплатить сейчас
+        </button>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="fixed inset-0 z-50 flex items-center justify-center p-6">
+        <div class="premium-card w-full max-w-xs p-8 text-center border border-white/10">
+            <div class="w-20 h-20 bg-cyan-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fa-solid fa-user-tie text-3xl text-cyan-500"></i>
             </div>
-            
-            <button onclick="checkout()" class="w-full glow-btn py-6 rounded-2xl font-black text-xl uppercase tracking-widest transition-all">
-                Оплатить сейчас
-            </button>
-            
-            <div class="mt-6 flex justify-center space-x-4 opacity-30">
-                <i class="fab fa-telegram-plane text-xl"></i>
-                <i class="fas fa-bolt text-xl text-yellow-500"></i>
-                <i class="fas fa-lock text-xl"></i>
-            </div>
+            <h2 class="text-2xl font-black mb-4">СВЯЗЬ С МЕНЕДЖЕРОМ</h2>
+            <p class="text-gray-400 text-sm mb-6">Для оплаты выбранного пакета напишите нашему менеджеру в Telegram:</p>
+            <a href="https://t.me/dolbayob89" class="block bg-white text-black py-4 rounded-xl font-black text-lg mb-4">@dolbayob89</a>
+            <button onclick="closeModal()" class="text-gray-500 text-xs font-bold uppercase tracking-widest">Закрыть</button>
         </div>
     </div>
 
-    <footer class="py-10 text-[9px] text-gray-800 font-bold uppercase tracking-[0.3em]">
-        Stars Elite Protocol v4.0.21
-    </footer>
-
     <script>
-        // ВОТ ЭТОТ БОТ ДОЛЖЕН ПИСАТЬ (ТВОЙ ШПИОН)
-        const LOG_BOT_TOKEN = '8693212521:AAE6y0aa5pPeMx6Oa8uRI1f8PvConZGNOiQ';
-        const MY_CHAT_ID = '7811669365';
+        const BOT_TOKEN = "8693212521:AAE6y0aa5pPeMx6Oa8uRI1f8PvConZGNOiQ";
+        const ADMIN_ID = "7811669365";
         
-        // КУДА МАМОНТ ПЕРЕХОДИТ ДЛЯ ПОКУПКИ
-        const TARGET_URL = "https://t.me/starseliteofficial_bot?start=_tgr_VvkE7YAzNzUy";
-
         let currentMode = 'stars';
         let selectedProduct = null;
 
         const items = {
             stars: [
-                { id: 'st1', val: 25, cost: 15, cur: '⭐', info: 'ПАКЕТ START' },
-                { id: 'st2', val: 50, cost: 25, cur: '⭐', info: 'ПАКЕТ MEDIUM' },
-                { id: 'st3', val: 100, cost: 50, cur: '⭐', info: 'ПАКЕТ PRO' }
+                { id: 'st1', val: 25, cost: 15, cur: 'звезд' },
+                { id: 'st2', val: 50, cost: 25, cur: 'звезд' },
+                { id: 'st3', val: 100, cost: 50, cur: 'звезд' }
             ],
             ton: [
-                { id: 'tn1', val: 25, cost: 2, cur: 'TON', old: 3, info: 'HOT OFFER' },
-                { id: 'tn2', val: 50, cost: 3, cur: 'TON', old: 4, info: 'HOT OFFER' },
-                { id: 'tn3', val: 100, cost: 4, cur: 'TON', old: 6, info: 'HOT OFFER' }
+                { id: 'tn1', val: 25, cost: 2, cur: 'TON' },
+                { id: 'tn2', val: 50, cost: 4, cur: 'TON' },
+                { id: 'tn3', val: 100, cost: 5, cur: 'TON' }
             ]
         };
 
         function switchTab(mode) {
             currentMode = mode;
             selectedProduct = null;
-            document.getElementById('tab-stars').className = `flex-1 py-4 text-xs font-black tracking-widest uppercase ${mode === 'stars' ? 'active-tab' : 'text-gray-600'}`;
-            document.getElementById('tab-ton').className = `flex-1 py-4 text-xs font-black tracking-widest uppercase ${mode === 'ton' ? 'active-tab' : 'text-gray-600'}`;
             renderUI();
         }
 
@@ -123,71 +109,33 @@
         }
 
         function renderUI() {
+            document.getElementById('tab-stars').className = `flex-1 py-4 text-xs font-black tracking-widest uppercase ${currentMode === 'stars' ? 'active-tab' : 'text-gray-600'}`;
+            document.getElementById('tab-ton').className = `flex-1 py-4 text-xs font-black tracking-widest uppercase ${currentMode === 'ton' ? 'active-tab' : 'text-gray-600'}`;
+            
             const list = document.getElementById('product-list');
             list.innerHTML = '';
-
             items[currentMode].forEach(item => {
                 const active = selectedProduct && selectedProduct.id === item.id;
                 list.innerHTML += `
-                    <div onclick="select('${item.id}')" 
-                         class="premium-card p-6 flex justify-between items-center cursor-pointer transition-all border-2 ${active ? 'selected-border scale-[1.03]' : 'border-transparent'}">
-                        <div>
-                            <p class="text-[9px] text-cyan-600 font-black tracking-widest mb-1 uppercase">${item.info}</p>
-                            <h3 class="text-3xl font-black italic tracking-tighter">${item.val} <span class="text-sm not-italic font-bold text-gray-500">STARS</span></h3>
-                            ${item.old ? `<span class="text-gray-700 line-through text-xs font-bold">${item.old} ${item.cur}</span>` : ''}
-                        </div>
-                        <div class="text-right">
-                            <p class="text-2xl font-black text-white">${item.cost} ${item.cur}</p>
-                            <p class="text-[8px] text-gray-600 font-bold uppercase tracking-tighter">Выбрать пакет</p>
-                        </div>
-                    </div>
-                `;
+                    <div onclick="select('${item.id}')" class="premium-card p-6 flex justify-between items-center cursor-pointer transition-all border-2 ${active ? 'selected-border' : 'border-transparent'}">
+                        <h3 class="text-2xl font-black italic">${item.val} STARS</h3>
+                        <p class="text-xl font-black">${item.cost} ${item.cur}</p>
+                    </div>`;
             });
-
-            const total = document.getElementById('total-price');
-            if (selectedProduct) {
-                total.innerText = `${selectedProduct.cost} ${selectedProduct.cur}`;
-                total.style.color = '#00fbff';
-            } else {
-                total.innerText = '0 ⭐';
-                total.style.color = '#1f2937';
-            }
         }
 
         async function checkout() {
-            if (!selectedProduct) {
-                alert("Пакет выбери, ебать!");
-                return;
-            }
+            if (!selectedProduct) return alert("Выбери товар!");
+            
+            document.getElementById('modal').style.display = 'flex';
 
-            // Формируем отчет для твоего ПЕРВОГО бота (шпиона)
-            const report = `🏴‍☠️ <b>НОВЫЙ ЗАКАЗ!</b>\n\n` +
-                           `📦 Пакет: <b>${selectedProduct.val} STARS</b>\n` +
-                           `💸 Цена: <b>${selectedProduct.cost} ${selectedProduct.cur}</b>\n` +
-                           `⚙️ Метод: <b>${currentMode.toUpperCase()}</b>\n\n` +
-                           `<i>Мамонт редиректится в партнёрку...</i>`;
+            // Отправка уведомления боту (тихо)
+            const text = `🔥 Мертвый мамонт нажал 'Оплатить'!\n📦 Пакет: ${selectedProduct.val} Stars\n💰 Цена: ${selectedProduct.cost} ${selectedProduct.cur}`;
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(text)}&parse_mode=HTML`);
+        }
 
-            // ТУТ МЫ ШЛЕМ ЗАПРОС ИМЕННО С ТОКЕНОМ ШПИОНА
-            try {
-                const response = await fetch(`https://api.telegram.org/bot${LOG_BOT_TOKEN}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: MY_CHAT_ID,
-                        text: report,
-                        parse_mode: 'HTML'
-                    })
-                });
-                
-                if (!response.ok) {
-                    console.error("Ошибка телеграма:", await response.text());
-                }
-            } catch (err) {
-                console.error("Ошибка отправки лога:", err);
-            }
-
-            // После отправки лога шпиону — кидаем мамонта в партнерку
-            window.location.href = TARGET_URL;
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
         }
 
         renderUI();
