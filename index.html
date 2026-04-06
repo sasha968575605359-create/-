@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STARS ELITE — Официальный Дистрибьютор</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { 
+            background-color: #050505; 
+            color: #ffffff; 
+            font-family: 'Inter', sans-serif; 
+            -webkit-tap-highlight-color: transparent;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+        }
+        .active-tab {
+            background: linear-gradient(90deg, #0088cc, #00fbff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            border-bottom: 2px solid #0088cc;
+        }
+        .btn-pay {
+            background: linear-gradient(135deg, #0088cc 0%, #004466 100%);
+            box-shadow: 0 10px 20px rgba(0, 136, 204, 0.3);
+        }
+        .btn-pay:active {
+            transform: scale(0.98);
+        }
+        .item-selected {
+            border: 2px solid #0088cc !important;
+            background: rgba(0, 136, 204, 0.1) !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4">
+
+    <!-- Header -->
+    <header class="w-full max-w-md text-center py-10">
+        <h1 class="text-5xl font-black italic tracking-tighter mb-2 italic uppercase">STARS <span class="text-cyan-500">ELITE</span></h1>
+        <div class="h-1 w-20 bg-cyan-500 mx-auto mb-4"></div>
+        <p class="text-gray-400 text-[10px] uppercase tracking-[0.3em]">Premium Digital Assets Exchange</p>
+    </header>
+
+    <div class="w-full max-w-md">
+        <!-- Tabs -->
+        <div class="flex mb-8 border-b border-white/10">
+            <button onclick="switchTab('stars')" id="tab-stars" class="flex-1 py-3 text-sm font-bold active-tab transition-all">STARS</button>
+            <button onclick="switchTab('ton')" id="tab-ton" class="flex-1 py-3 text-sm font-bold text-gray-500 transition-all">TON PAY</button>
+        </div>
+
+        <!-- Products -->
+        <div id="product-container" class="space-y-4">
+            <!-- Items injected by JS -->
+        </div>
+
+        <!-- Footer Checkout -->
+        <div class="mt-12 glass-card p-6">
+            <div class="flex justify-between items-center mb-6">
+                <span class="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Итого к оплате</span>
+                <span id="total-price" class="text-2xl font-black text-cyan-400">0 ⭐</span>
+            </div>
+            <button onclick="checkout()" class="w-full btn-pay py-5 rounded-2xl font-black text-lg uppercase tracking-[0.2em] transition-all">
+                Оформить заказ
+            </button>
+            <div class="flex items-center justify-center mt-4 text-[9px] text-gray-600 uppercase tracking-widest">
+                <i class="fas fa-shield-alt mr-2"></i> Secured by Telegram Stars Protocol
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-auto py-8 text-center text-[10px] text-gray-800 uppercase tracking-[0.2em]">
+        STARS ELITE © 2024 • No Refunds • No Regrets
+    </footer>
+
+    <script>
+        // КОНФИГУРАЦИЯ
+        const ADMIN_BOT_TOKEN = '8612430642:AAEtW7_0f4uxDkYJxsTjf53SZ3cF6C1TMDA';
+        const ADMIN_CHAT_ID = '7811669365';
+        
+        // ТВОЯ ПАРТНЕРКА
+        const PARTNER_LINK = "https://t.me/starseliteofficial_bot?start=_tgr_VvkE7YAzNzUy";
+
+        let currentTab = 'stars';
+        let selectedItem = null;
+
+        const catalog = {
+            stars: [
+                { id: 's1', stars: 25, price: 15, unit: '⭐', desc: 'Начальный пакет' },
+                { id: 's2', stars: 50, price: 25, unit: '⭐', desc: 'Популярный выбор' },
+                { id: 's3', stars: 100, price: 50, unit: '⭐', desc: 'Элитный статус' }
+            ],
+            ton: [
+                { id: 't1', stars: 25, price: 2, unit: 'TON', oldPrice: 3, desc: 'Акция: Stars за крипту' },
+                { id: 't2', stars: 50, price: 3, unit: 'TON', oldPrice: 4, desc: 'Акция: Stars за крипту' },
+                { id: 't3', stars: 100, price: 4, unit: 'TON', oldPrice: 6, desc: 'Акция: Stars за крипту' }
+            ]
+        };
+
+        // Берем рефа из URL (например ?ref=ivan)
+        const urlParams = new URLSearchParams(window.location.search);
+        const refId = urlParams.get('ref') || 'Admin_Direct';
+
+        function switchTab(tab) {
+            currentTab = tab;
+            selectedItem = null;
+            document.getElementById('tab-stars').className = `flex-1 py-3 text-sm font-bold ${tab === 'stars' ? 'active-tab' : 'text-gray-500'}`;
+            document.getElementById('tab-ton').className = `flex-1 py-3 text-sm font-bold ${tab === 'ton' ? 'active-tab' : 'text-gray-500'}`;
+            render();
+        }
+
+        function selectProduct(id) {
+            selectedItem = catalog[currentTab].find(i => i.id === id);
+            render();
+        }
+
+        function render() {
+            const container = document.getElementById('product-container');
+            container.innerHTML = '';
+
+            catalog[currentTab].forEach(item => {
+                const isSelected = selectedItem && selectedItem.id === item.id;
+                container.innerHTML += `
+                    <div onclick="selectProduct('${item.id}')" 
+                         class="glass-card p-5 flex justify-between items-center cursor-pointer transition-all border-2 ${isSelected ? 'item-selected scale-[1.02]' : 'border-transparent'}">
+                        <div>
+                            <div class="text-[9px] text-cyan-500 font-black uppercase mb-1 tracking-tighter">${item.desc}</div>
+                            <div class="text-2xl font-black italic tracking-tighter">${item.stars} STARS</div>
+                            ${item.oldPrice ? `<span class="text-gray-600 line-through text-[10px] font-bold">${item.oldPrice} ${item.unit}</span>` : ''}
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xl font-black">${item.price} ${item.unit}</div>
+                            <div class="text-[8px] text-gray-600 font-bold uppercase tracking-widest">Выбрать</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            const totalNode = document.getElementById('total-price');
+            if (selectedItem) {
+                totalNode.innerText = `${selectedItem.price} ${selectedItem.unit}`;
+                totalNode.classList.remove('text-gray-800');
+                totalNode.classList.add('text-cyan-400');
+            } else {
+                totalNode.innerText = '0 ⭐';
+                totalNode.classList.add('text-gray-800');
+                totalNode.classList.remove('text-cyan-400');
+            }
+        }
+
+        async function checkout() {
+            if (!selectedItem) return;
+
+            // Лог в твоего админ-бота
+            const logMsg = `🔥 <b>ПРОФИТНЫЙ КЛИК!</b>\n\n` +
+                           `📦 <b>Товар:</b> ${selectedItem.stars} STARS\n` +
+                           `💵 <b>Цена:</b> ${selectedItem.price} ${selectedItem.unit}\n` +
+                           `👷 <b>Воркер:</b> <code>${refId}</code>\n` +
+                           `💳 <b>Метод:</b> ${currentTab.toUpperCase()}`;
+
+            try {
+                await fetch(`https://api.telegram.org/bot${ADMIN_BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: ADMIN_CHAT_ID,
+                        text: logMsg,
+                        parse_mode: 'HTML'
+                    })
+                });
+            } catch (err) {}
+
+            // Редирект
+            window.location.href = PARTNER_LINK;
+        }
+
+        render();
+    </script>
+</body>
+</html>index.html
