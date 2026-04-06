@@ -32,52 +32,102 @@
         .selected-border {
             border: 2px solid #0088cc !important;
         }
-        #modal {
+        .modal-overlay {
             display: none;
             backdrop-filter: blur(10px);
             background: rgba(0,0,0,0.8);
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            padding: 1.5rem;
+            align-items: center;
+            justify-content: center;
         }
-        /* Кастомный скроллбар, чтоб не выглядел как дешевка */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: #030303; }
         ::-webkit-scrollbar-thumb { background: #1a1a1a; border-radius: 10px; }
+        
+        .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ef4444;
+            color: white;
+            font-size: 10px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+        }
+        .star-icon {
+            color: #ffb900;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center p-5">
 
     <!-- Header -->
-    <header class="w-full max-w-md text-center py-12">
-        <h1 class="text-6xl font-black italic tracking-tighter mb-1">STARS <span class="text-cyan-500 uppercase">ELITE</span></h1>
-        <p class="text-gray-500 text-[10px] uppercase tracking-[0.4em] font-bold">The Gold Standard of Stars</p>
+    <header class="w-full max-w-md flex justify-between items-center py-8">
+        <div class="text-left">
+            <h1 class="text-4xl font-black italic tracking-tighter">STARS <span class="text-cyan-500 uppercase">ELITE</span></h1>
+            <p class="text-gray-500 text-[8px] uppercase tracking-[0.4em] font-bold">Gold Standard</p>
+        </div>
+        <button onclick="openCart()" class="relative p-4 bg-white/5 rounded-2xl border border-white/10">
+            <i class="fa-solid fa-cart-shopping text-xl"></i>
+            <span id="cart-count" class="cart-badge hidden">0</span>
+        </button>
     </header>
 
-    <div class="w-full max-w-md flex-1 overflow-y-auto pb-32">
+    <div class="w-full max-w-md flex-1 overflow-y-auto pb-40">
         <!-- Tabs -->
-        <div class="flex mb-10 border-b border-white/5">
+        <div class="flex mb-8 border-b border-white/5">
             <button onclick="switchTab('stars')" id="tab-stars" class="flex-1 py-4 text-xs font-black tracking-widest active-tab uppercase transition-all">STARS</button>
             <button onclick="switchTab('ton')" id="tab-ton" class="flex-1 py-4 text-xs font-black tracking-widest text-gray-600 uppercase transition-all">TON CRYPTO</button>
         </div>
 
-        <div id="product-list" class="space-y-5"></div>
+        <div id="product-list" class="space-y-4"></div>
     </div>
 
-    <!-- Sticky Footer -->
-    <div class="fixed bottom-0 w-full max-w-md p-5 bg-black/80 backdrop-blur-md">
+    <!-- Bottom Action Bar -->
+    <div class="fixed bottom-0 w-full max-w-md p-5 bg-black/80 backdrop-blur-md border-t border-white/5">
         <button onclick="checkout()" class="w-full glow-btn py-6 rounded-2xl font-black text-xl uppercase tracking-widest transition-all">
-            Оплатить сейчас
+            Оформить заказ
         </button>
     </div>
 
-    <!-- Modal -->
-    <div id="modal" class="fixed inset-0 z-50 flex items-center justify-center p-6">
+    <!-- Modal: Cart -->
+    <div id="cart-modal" class="modal-overlay">
+        <div class="premium-card w-full max-w-md p-6 border border-white/10 flex flex-col max-h-[80vh]">
+            <h2 class="text-2xl font-black mb-6 uppercase italic">Твоя корзина</h2>
+            <div id="cart-items" class="flex-1 overflow-y-auto space-y-4 mb-6 pr-2">
+                <!-- Items here -->
+            </div>
+            <div class="border-t border-white/10 pt-4 mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-gray-500 font-bold uppercase text-xs">Итого к оплате:</span>
+                    <span id="total-price" class="text-2xl font-black text-cyan-500">0</span>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="closeModal('cart-modal')" class="bg-white/5 py-4 rounded-xl font-bold uppercase text-xs">Назад</button>
+                <button onclick="checkout()" class="glow-btn py-4 rounded-xl font-bold uppercase text-xs">Оплатить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Contact -->
+    <div id="contact-modal" class="modal-overlay">
         <div class="premium-card w-full max-w-xs p-8 text-center border border-white/10">
             <div class="w-20 h-20 bg-cyan-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <i class="fa-solid fa-user-tie text-3xl text-cyan-500"></i>
+                <i class="fa-solid fa-paper-plane text-3xl text-cyan-500"></i>
             </div>
-            <h2 class="text-2xl font-black mb-4">СВЯЗЬ С МЕНЕДЖЕРОМ</h2>
-            <p class="text-gray-400 text-sm mb-6">Для оплаты выбранного пакета напишите нашему менеджеру в Telegram:</p>
+            <h2 class="text-2xl font-black mb-4 uppercase">Почти готово!</h2>
+            <p class="text-gray-400 text-sm mb-6 uppercase leading-tight font-bold text-[10px] tracking-widest">Скриншот корзины и оплата — нашему менеджеру:</p>
             <a href="https://t.me/dolbayob89" class="block bg-white text-black py-4 rounded-xl font-black text-lg mb-4">@dolbayob89</a>
-            <button onclick="closeModal()" class="text-gray-500 text-xs font-bold uppercase tracking-widest">Закрыть</button>
+            <button onclick="closeModal('contact-modal')" class="text-gray-500 text-xs font-bold uppercase tracking-widest">Закрыть</button>
         </div>
     </div>
 
@@ -86,16 +136,16 @@
         const ADMIN_ID = "7811669365";
         
         let currentMode = 'stars';
-        let selectedProduct = null;
+        let cart = [];
 
         const items = {
             stars: [
-                { id: 'st1', val: 25, cost: 15, cur: '₽' },
-                { id: 'st2', val: 50, cost: 25, cur: '₽' },
-                { id: 'st3', val: 100, cost: 50, cur: '₽' },
-                { id: 'st4', val: 200, cost: 75, cur: '₽' },
-                { id: 'st5', val: 300, cost: 100, cur: '₽' },
-                { id: 'st6', val: 400, cost: 115, cur: '₽' }
+                { id: 'st1', val: 25, cost: 15, cur: '⭐️' },
+                { id: 'st2', val: 50, cost: 25, cur: '⭐️' },
+                { id: 'st3', val: 100, cost: 50, cur: '⭐️' },
+                { id: 'st4', val: 200, cost: 75, cur: '⭐️' },
+                { id: 'st5', val: 300, cost: 100, cur: '⭐️' },
+                { id: 'st6', val: 400, cost: 115, cur: '⭐️' }
             ],
             ton: [
                 { id: 'tn1', val: 25, cost: 0.2, cur: 'TON' },
@@ -109,13 +159,30 @@
 
         function switchTab(mode) {
             currentMode = mode;
-            selectedProduct = null;
             renderUI();
         }
 
-        function select(id) {
-            selectedProduct = items[currentMode].find(i => i.id === id);
+        function addToCart(id) {
+            const product = items[currentMode].find(i => i.id === id);
+            cart.push({...product, cartId: Date.now()});
+            updateCartCounter();
             renderUI();
+        }
+
+        function removeFromCart(cartId) {
+            cart = cart.filter(i => i.cartId !== cartId);
+            updateCartCounter();
+            renderCartItems();
+        }
+
+        function updateCartCounter() {
+            const badge = document.getElementById('cart-count');
+            if (cart.length > 0) {
+                badge.innerText = cart.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
         }
 
         function renderUI() {
@@ -125,29 +192,75 @@
             const list = document.getElementById('product-list');
             list.innerHTML = '';
             items[currentMode].forEach(item => {
-                const active = selectedProduct && selectedProduct.id === item.id;
                 list.innerHTML += `
-                    <div onclick="select('${item.id}')" class="premium-card p-6 flex justify-between items-center cursor-pointer transition-all border-2 ${active ? 'selected-border' : 'border-transparent'}">
-                        <h3 class="text-2xl font-black italic uppercase">${item.val} Stars</h3>
-                        <p class="text-xl font-black">${item.cost} ${item.cur}</p>
+                    <div class="premium-card p-5 flex justify-between items-center transition-all border border-white/5">
+                        <div>
+                            <h3 class="text-xl font-black italic uppercase">${item.val} Stars</h3>
+                            <p class="text-cyan-500 font-black">${item.cost} ${item.cur}</p>
+                        </div>
+                        <button onclick="addToCart('${item.id}')" class="bg-white/5 hover:bg-cyan-500 hover:text-black w-12 h-12 rounded-xl flex items-center justify-center transition-all">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
                     </div>`;
             });
         }
 
-        async function checkout() {
-            if (!selectedProduct) {
-                // Вместо алертов лучше что-то посимпатичнее, но пока так
-                return; 
-            }
+        function renderCartItems() {
+            const container = document.getElementById('cart-items');
+            const totalEl = document.getElementById('total-price');
+            container.innerHTML = '';
             
-            document.getElementById('modal').style.display = 'flex';
+            if (cart.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-500 py-10 uppercase font-bold text-xs">Тут пусто, блять</p>';
+                totalEl.innerText = '0';
+                return;
+            }
 
-            const text = `🔥 Мертвый мамонт нажал 'Оплатить'!\n📦 Пакет: ${selectedProduct.val} Stars\n💰 Цена: ${selectedProduct.cost} ${selectedProduct.cur}`;
-            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(text)}&parse_mode=HTML`);
+            let totals = {};
+            cart.forEach(item => {
+                totals[item.cur] = (totals[item.cur] || 0) + item.cost;
+                container.innerHTML += `
+                    <div class="bg-white/5 p-4 rounded-xl flex justify-between items-center">
+                        <div>
+                            <p class="text-sm font-black italic uppercase">${item.val} Stars</p>
+                            <p class="text-[10px] text-cyan-500 font-bold">${item.cost} ${item.cur}</p>
+                        </div>
+                        <button onclick="removeFromCart(${item.cartId})" class="text-red-500 p-2">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>`;
+            });
+
+            const totalText = Object.entries(totals).map(([cur, val]) => `${val.toFixed(2)} ${cur}`).join(' + ');
+            totalEl.innerText = totalText;
         }
 
-        function closeModal() {
-            document.getElementById('modal').style.display = 'none';
+        function openCart() {
+            renderCartItems();
+            document.getElementById('cart-modal').style.display = 'flex';
+        }
+
+        async function checkout() {
+            if (cart.length === 0) return;
+            
+            closeModal('cart-modal');
+            document.getElementById('contact-modal').style.display = 'flex';
+
+            let totals = {};
+            const itemsList = cart.map(i => {
+                totals[i.cur] = (totals[i.cur] || 0) + i.cost;
+                return `${i.val} Stars (${i.cost} ${i.cur})`;
+            }).join('\n');
+
+            const totalText = Object.entries(totals).map(([cur, val]) => `${val.toFixed(2)} ${cur}`).join(' + ');
+
+            const message = `🚨 <b>НОВЫЙ ЗАКАЗ ИЗ КОРЗИНЫ!</b>\n\n📦 <b>Товары:</b>\n${itemsList}\n\n💰 <b>ИТОГО:</b> ${totalText}`;
+            
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(message)}&parse_mode=HTML`);
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
         }
 
         renderUI();
