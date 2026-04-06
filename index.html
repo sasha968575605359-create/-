@@ -29,10 +29,6 @@
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .premium-card:active {
-            transform: scale(0.97);
-        }
-
         .active-tab {
             color: var(--accent);
             border-bottom: 3px solid var(--accent);
@@ -79,6 +75,40 @@
             100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
+        .live-notif {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: rgba(15, 15, 15, 0.9);
+            border: 1px solid var(--accent);
+            padding: 10px 20px;
+            border-radius: 50px;
+            z-index: 100;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .live-notif.show { transform: translateX(-50%) translateY(0); }
+
+        .progress-bar {
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
         .copy-box {
             background: rgba(255,255,255,0.05);
             border: 1px dashed rgba(0, 136, 204, 0.4);
@@ -89,11 +119,6 @@
             margin-top: 8px;
             font-size: 11px;
             cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .copy-box:hover {
-            background: rgba(0, 136, 204, 0.1);
         }
 
         .product-enter {
@@ -112,18 +137,25 @@
             border-radius: 20px;
             font-weight: 900;
             text-transform: uppercase;
-            margin-left: 8px;
         }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center p-5">
 
+    <div id="notif" class="live-notif flex items-center gap-3">
+        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+        <span id="notif-text">Юзер @**** купил 400 Stars</span>
+    </div>
+
     <!-- Header -->
     <header class="w-full max-w-md flex justify-between items-center py-8">
         <div class="text-left">
             <h1 class="text-4xl font-black italic tracking-tighter leading-none">STARS <span class="text-cyan-500">ELITE</span></h1>
-            <div class="flex items-center mt-1">
-                <p class="text-gray-500 text-[8px] uppercase tracking-[0.4em] font-bold">Status:</p>
+            <div class="flex items-center mt-2 gap-2">
+                <div class="flex items-center bg-white/5 px-2 py-1 rounded-md">
+                    <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
+                    <span class="text-[8px] font-bold text-gray-400 uppercase"><span id="online-count">142</span> ONLINE</span>
+                </div>
                 <span id="rank-badge" class="vip-status bg-gray-800 text-gray-400">Bronze</span>
             </div>
         </div>
@@ -153,43 +185,49 @@
     <!-- Modal: Cart -->
     <div id="cart-modal" class="modal-overlay">
         <div class="premium-card w-full max-w-md p-6 border border-white/10 flex flex-col max-h-[85vh]">
-            <div class="flex justify-between items-center mb-6">
+            <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-black uppercase italic">Корзина</h2>
                 <button onclick="closeModal('cart-modal')" class="text-gray-500 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+
+            <!-- VIP Progress -->
+            <div class="mb-6 bg-white/5 p-3 rounded-xl border border-white/5">
+                <div class="flex justify-between text-[10px] font-black uppercase mb-1">
+                    <span id="next-rank-label">До Silver</span>
+                    <span id="progress-percent">0%</span>
+                </div>
+                <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+                <p class="text-[9px] text-gray-500 mt-1" id="rank-hint">Добавь еще 1 товар для бонуса</p>
             </div>
             
             <div id="cart-items" class="flex-1 overflow-y-auto space-y-4 mb-6 pr-2"></div>
             
             <div class="border-t border-white/10 pt-4 mb-6">
                 <div class="flex justify-between items-center">
-                    <span class="text-gray-500 font-bold uppercase text-[10px]">К оплате:</span>
+                    <span class="text-gray-500 font-bold uppercase text-[10px]">Итоговая сумма:</span>
                     <span id="total-price" class="text-2xl font-black text-cyan-500">0</span>
                 </div>
             </div>
             
             <button onclick="checkout()" class="glow-btn py-5 rounded-2xl font-black uppercase text-sm tracking-widest">
-                Перейти к оплате
+                Оплатить сейчас
             </button>
         </div>
     </div>
 
-    <!-- Modal: Payment Details -->
+    <!-- Modal: Payment -->
     <div id="contact-modal" class="modal-overlay">
         <div class="premium-card w-full max-w-md p-8 text-center border border-white/10 relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
-            
             <div class="w-16 h-16 bg-cyan-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <i class="fa-solid fa-shield-halved text-2xl text-cyan-500"></i>
             </div>
-            
-            <h2 class="text-2xl font-black mb-4 uppercase italic">Оплата заказа</h2>
-            
-            <div id="payment-instructions" class="text-left text-sm space-y-4 mb-8 bg-white/5 p-4 rounded-2xl border border-white/5"></div>
-
+            <h2 class="text-2xl font-black mb-4 uppercase italic text-white">Ожидание оплаты</h2>
+            <div id="payment-instructions" class="text-left text-sm space-y-4 mb-8 bg-white/5 p-4 rounded-2xl border border-white/5 text-gray-300"></div>
             <div class="space-y-3">
-                <p class="text-gray-400 text-[9px] uppercase font-bold tracking-widest">Скриншот чека слать сюда:</p>
-                <a href="https://t.me/dolbayob89" class="block bg-white text-black py-4 rounded-xl font-black text-lg transition-transform active:scale-95">@dolbayob89</a>
-                <button onclick="closeModal('contact-modal')" class="text-gray-600 text-[10px] font-bold uppercase tracking-[0.2em] pt-2">Закрыть</button>
+                <p class="text-gray-400 text-[9px] uppercase font-bold tracking-widest">Чек в поддержку:</p>
+                <a href="https://t.me/dolbayob89" class="block bg-white text-black py-4 rounded-xl font-black text-lg">@dolbayob89</a>
+                <button onclick="closeModal('contact-modal')" class="text-gray-600 text-[10px] font-bold uppercase tracking-[0.2em] pt-2">Отмена</button>
             </div>
         </div>
     </div>
@@ -199,9 +237,9 @@
         const ADMIN_ID = "7811669365";
         const WALLET = "UQD3W--X8UafHqQK9GDyrYNuuEHWBQrvnOU61-s1shpGWdcr";
         const USERNAME = "@dolbayob89";
-        
+
         let currentMode = 'stars';
-        let cart = [];
+        let cart = JSON.parse(localStorage.getItem('elite_cart') || '[]');
 
         const items = {
             stars: [
@@ -222,6 +260,29 @@
             ]
         };
 
+        const names = ["@alex", "@dimon", "@kripto_man", "@tg_king", "@user77", "@shadow", "@vlad", "@max_payne", "@luxury_tg"];
+
+        // Live Notifications
+        function showFakeNotif() {
+            const name = names[Math.floor(Math.random() * names.length)];
+            const val = [50, 100, 200, 400][Math.floor(Math.random() * 4)];
+            document.getElementById('notif-text').innerText = `Юзер ${name} купил ${val} Stars`;
+            const el = document.getElementById('notif');
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 4000);
+            
+            // Рандомно меняем онлайн
+            document.getElementById('online-count').innerText = 120 + Math.floor(Math.random() * 50);
+        }
+
+        setInterval(showFakeNotif, 12000);
+
+        function saveCart() {
+            localStorage.setItem('elite_cart', JSON.stringify(cart));
+            updateCartCounter();
+            updateRank();
+        }
+
         function switchTab(mode) {
             currentMode = mode;
             renderUI();
@@ -230,39 +291,55 @@
         function addToCart(id) {
             const product = items[currentMode].find(i => i.id === id);
             cart.push({...product, cartId: Math.random().toString(36).substr(2, 9)});
-            updateCartCounter();
-            updateRank();
+            saveCart();
             
-            // Временная вспышка на корзине
             const btn = document.querySelector('button[onclick="openCart()"]');
-            btn.classList.add('scale-110', 'border-cyan-500');
-            setTimeout(() => btn.classList.remove('scale-110', 'border-cyan-500'), 200);
+            btn.classList.add('scale-110');
+            setTimeout(() => btn.classList.remove('scale-110'), 200);
         }
 
         function removeFromCart(cartId) {
             cart = cart.filter(i => i.cartId !== cartId);
-            updateCartCounter();
-            updateRank();
+            saveCart();
             renderCartItems();
         }
 
         function updateCartCounter() {
             const badge = document.getElementById('cart-count');
-            if (cart.length > 0) {
-                badge.innerText = cart.length;
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
-            }
+            badge.innerText = cart.length;
+            badge.classList.toggle('hidden', cart.length === 0);
         }
 
         function updateRank() {
             const badge = document.getElementById('rank-badge');
+            const progress = document.getElementById('progress-fill');
+            const percentText = document.getElementById('progress-percent');
+            const label = document.getElementById('next-rank-label');
+            const hint = document.getElementById('rank-hint');
+            
             const len = cart.length;
-            if (len === 0) { badge.innerText = "Bronze"; badge.className = "vip-status bg-gray-800 text-gray-400"; }
-            else if (len < 3) { badge.innerText = "Silver"; badge.className = "vip-status bg-blue-900 text-blue-300"; }
-            else if (len < 6) { badge.innerText = "Gold"; badge.className = "vip-status bg-yellow-900 text-yellow-300"; }
-            else { badge.innerText = "Elite"; badge.className = "vip-status bg-cyan-900 text-cyan-300"; }
+            let percent = 0;
+
+            if (len === 0) {
+                badge.innerText = "Bronze";
+                badge.className = "vip-status bg-gray-800 text-gray-400";
+                percent = 0; label.innerText = "До Silver"; hint.innerText = "Добавь 1 товар для старта";
+            } else if (len < 3) {
+                badge.innerText = "Silver";
+                badge.className = "vip-status bg-blue-900 text-blue-300";
+                percent = (len / 3) * 100; label.innerText = "До Gold"; hint.innerText = "Еще немного до скидки Gold";
+            } else if (len < 6) {
+                badge.innerText = "Gold";
+                badge.className = "vip-status bg-yellow-900 text-yellow-300";
+                percent = (len / 6) * 100; label.innerText = "До ELITE"; hint.innerText = "Стань элитой проекта!";
+            } else {
+                badge.innerText = "Elite";
+                badge.className = "vip-status bg-cyan-900 text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.3)]";
+                percent = 100; label.innerText = "Максимальный ранг"; hint.innerText = "Тебе доступны лучшие условия";
+            }
+
+            if(progress) progress.style.width = percent + '%';
+            if(percentText) percentText.innerText = Math.floor(percent) + '%';
         }
 
         function renderUI() {
@@ -281,7 +358,7 @@
                         <p class="text-cyan-500 font-black">${item.cost} ${item.cur}</p>
                     </div>
                     <button onclick="addToCart('${item.id}')" class="bg-white/5 hover:bg-cyan-500 hover:text-black w-12 h-12 rounded-xl flex items-center justify-center transition-all group">
-                        <i class="fa-solid fa-plus group-hover:rotate-90 transition-transform"></i>
+                        <i class="fa-solid fa-plus group-hover:rotate-90"></i>
                     </button>`;
                 list.appendChild(card);
             });
@@ -293,11 +370,7 @@
             container.innerHTML = '';
             
             if (cart.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-10">
-                        <i class="fa-solid fa-box-open text-4xl text-gray-800 mb-4"></i>
-                        <p class="text-gray-600 uppercase font-bold text-[10px] tracking-widest">Тут пусто д</p>
-                    </div>`;
+                container.innerHTML = '<div class="text-center py-10 text-gray-600 font-bold uppercase text-[10px]">Корзина пуста</div>';
                 totalEl.innerText = '0';
                 return;
             }
@@ -309,21 +382,19 @@
                     <div class="bg-white/5 p-4 rounded-2xl flex justify-between items-center border border-white/5">
                         <div class="flex items-center">
                             <div class="w-10 h-10 bg-cyan-500/10 rounded-lg flex items-center justify-center mr-4 text-cyan-500">
-                                ${item.cur === '⭐️' ? '<i class="fa-solid fa-star"></i>' : '<i class="fa-solid fa-gem"></i>'}
+                                <i class="fa-solid ${item.cur === '⭐️' ? 'fa-star' : 'fa-gem'}"></i>
                             </div>
                             <div>
                                 <p class="text-sm font-black italic uppercase">${item.val} Stars</p>
                                 <p class="text-[10px] text-cyan-500 font-bold">${item.cost} ${item.cur}</p>
                             </div>
                         </div>
-                        <button onclick="removeFromCart('${item.cartId}')" class="text-red-900/50 hover:text-red-500 p-2 transition-colors">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
+                        <button onclick="removeFromCart('${item.cartId}')" class="text-red-900/50 hover:text-red-500 p-2"><i class="fa-solid fa-trash-can"></i></button>
                     </div>`;
             });
 
-            const totalText = Object.entries(totals).map(([cur, val]) => `${val.toFixed(2)} ${cur}`).join(' + ');
-            totalEl.innerText = totalText;
+            totalEl.innerText = Object.entries(totals).map(([cur, val]) => `${val.toFixed(2)} ${cur}`).join(' + ');
+            updateRank();
         }
 
         function copyWallet() {
@@ -338,10 +409,7 @@
             const original = box.innerText;
             box.innerText = "СКОПИРОВАНО!";
             box.style.color = "#22c55e";
-            setTimeout(() => {
-                box.innerText = original;
-                box.style.color = "inherit";
-            }, 1000);
+            setTimeout(() => { box.innerText = original; box.style.color = "inherit"; }, 1000);
         }
 
         function openCart() {
@@ -353,57 +421,34 @@
             if (cart.length === 0) return;
             
             let totals = {};
-            cart.forEach(i => {
-                totals[i.cur] = (totals[i.cur] || 0) + i.cost;
-            });
-
+            cart.forEach(i => totals[i.cur] = (totals[i.cur] || 0) + i.cost);
             const starTotal = totals['⭐️'] || 0;
             const tonTotal = totals['TON'] || 0;
 
             const instrBox = document.getElementById('payment-instructions');
-            instrBox.innerHTML = '';
+            let content = '';
 
-            if (starTotal > 0 && tonTotal > 0) {
-                instrBox.innerHTML = `
-                    <div class="space-y-4">
-                        <p class="font-bold uppercase text-[10px] text-gray-500">Комбо-оплата:</p>
-                        <p class="leading-tight">1. Перешли <span class="text-cyan-500 font-black">${starTotal.toFixed(0)}</span> звёзд на: <span class="text-white font-black underline">${USERNAME}</span></p>
-                        <p class="leading-tight">2. Перешли <span class="text-cyan-500 font-black">${tonTotal.toFixed(2)}</span> TON на кошелёк (кликни чтоб скопировать):</p>
-                        <div class="copy-box" onclick="copyWallet()">${WALLET}</div>
-                    </div>`;
-            } else if (tonTotal > 0) {
-                instrBox.innerHTML = `
-                    <div class="space-y-4">
-                        <p class="font-bold uppercase text-[10px] text-gray-500">Оплата в TON:</p>
-                        <p class="leading-tight">Перешли <span class="text-cyan-500 font-black">${tonTotal.toFixed(2)}</span> TON на адрес ниже:</p>
-                        <div class="copy-box" onclick="copyWallet()">${WALLET}</div>
-                    </div>`;
-            } else if (starTotal > 0) {
-                instrBox.innerHTML = `
-                    <div class="space-y-4">
-                        <p class="font-bold uppercase text-[10px] text-gray-500">Оплата в Stars:</p>
-                        <p class="leading-tight">Перешли <span class="text-cyan-500 font-black">${starTotal.toFixed(0)}</span> звёзд по юзернейму:</p>
-                        <div class="font-black text-lg p-3 bg-white/5 rounded-xl border border-white/10 text-center">${USERNAME}</div>
-                    </div>`;
-            }
-
+            if (starTotal > 0) content += `<p>1. Переведи <b>${starTotal.toFixed(0)}</b> ⭐️ на <b>${USERNAME}</b></p>`;
+            if (tonTotal > 0) content += `<p>${starTotal > 0 ? '2' : '1'}. Отправь <b>${tonTotal.toFixed(2)}</b> TON на адрес:</p><div class="copy-box" onclick="copyWallet()">${WALLET}</div>`;
+            
+            instrBox.innerHTML = content;
             closeModal('cart-modal');
             document.getElementById('contact-modal').style.display = 'flex';
 
-            // Логи в ТГ
             const itemsList = cart.map(i => `• ${i.val} Stars (${i.cost} ${i.cur})`).join('\n');
-            const totalText = Object.entries(totals).map(([cur, val]) => `${val.toFixed(2)} ${cur}`).join(' + ');
-            const message = `💎 <b>ELITE ORDER</b>\n\n📦 <b>Pack:</b>\n${itemsList}\n\n💰 <b>Total:</b> ${totalText}`;
+            const message = `🔥 <b>НОВЫЙ ЗАКАЗ</b>\n\n👤 <b>Ранг:</b> ${document.getElementById('rank-badge').innerText}\n📦 <b>Состав:</b>\n${itemsList}\n\n💰 <b>Итого:</b> ${document.getElementById('total-price').innerText}`;
             
             fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(message)}&parse_mode=HTML`);
         }
 
-        function closeModal(id) {
-            document.getElementById(id).style.display = 'none';
-        }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-        // Init
-        renderUI();
+        window.onload = () => {
+            updateCartCounter();
+            updateRank();
+            renderUI();
+            setTimeout(showFakeNotif, 3000);
+        };
     </script>
 </body>
 </html>
