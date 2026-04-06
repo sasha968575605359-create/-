@@ -3,36 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STARS ELITE — Официальный Маркет</title>
+    <title>STARS ELITE — Official Market</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        
+        :root {
+            --accent: #0088cc;
+            --bg: #030303;
+        }
+
         body { 
-            background-color: #030303; 
+            background-color: var(--bg); 
             color: #ffffff; 
             font-family: 'Inter', sans-serif; 
             -webkit-tap-highlight-color: transparent;
             overflow-x: hidden;
         }
+
         .premium-card {
             background: linear-gradient(145deg, #0f0f0f 0%, #050505 100%);
             border: 1px solid rgba(255, 255, 255, 0.03);
             border-radius: 24px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+
+        .premium-card:active {
+            transform: scale(0.97);
+        }
+
         .active-tab {
-            color: #0088cc;
-            border-bottom: 3px solid #0088cc;
+            color: var(--accent);
+            border-bottom: 3px solid var(--accent);
         }
+
         .glow-btn {
-            background: linear-gradient(135deg, #0088cc 0%, #005580 100%);
-            box-shadow: 0 0 20px rgba(0, 136, 204, 0.4);
+            background: linear-gradient(135deg, var(--accent) 0%, #005580 100%);
+            box-shadow: 0 10px 20px rgba(0, 136, 204, 0.3);
         }
+
         .modal-overlay {
             display: none;
-            backdrop-filter: blur(10px);
-            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(15px);
+            background: rgba(0,0,0,0.85);
             position: fixed;
             inset: 0;
             z-index: 50;
@@ -40,10 +54,7 @@
             align-items: center;
             justify-content: center;
         }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: #030303; }
-        ::-webkit-scrollbar-thumb { background: #1a1a1a; border-radius: 10px; }
-        
+
         .cart-badge {
             position: absolute;
             top: -5px;
@@ -51,23 +62,57 @@
             background: #ef4444;
             color: white;
             font-size: 10px;
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 900;
+            border: 2px solid var(--bg);
+            animation: pulse 2s infinite;
         }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
         .copy-box {
             background: rgba(255,255,255,0.05);
-            border: 1px dashed rgba(255,255,255,0.2);
-            padding: 10px;
-            border-radius: 12px;
+            border: 1px dashed rgba(0, 136, 204, 0.4);
+            padding: 12px;
+            border-radius: 14px;
             font-family: monospace;
             word-break: break-all;
-            margin-top: 5px;
+            margin-top: 8px;
             font-size: 11px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .copy-box:hover {
+            background: rgba(0, 136, 204, 0.1);
+        }
+
+        .product-enter {
+            animation: slideIn 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .vip-status {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-left: 8px;
         }
     </style>
 </head>
@@ -76,18 +121,21 @@
     <!-- Header -->
     <header class="w-full max-w-md flex justify-between items-center py-8">
         <div class="text-left">
-            <h1 class="text-4xl font-black italic tracking-tighter">STARS <span class="text-cyan-500 uppercase">ELITE</span></h1>
-            <p class="text-gray-500 text-[8px] uppercase tracking-[0.4em] font-bold">Gold Standard</p>
+            <h1 class="text-4xl font-black italic tracking-tighter leading-none">STARS <span class="text-cyan-500">ELITE</span></h1>
+            <div class="flex items-center mt-1">
+                <p class="text-gray-500 text-[8px] uppercase tracking-[0.4em] font-bold">Status:</p>
+                <span id="rank-badge" class="vip-status bg-gray-800 text-gray-400">Bronze</span>
+            </div>
         </div>
-        <button onclick="openCart()" class="relative p-4 bg-white/5 rounded-2xl border border-white/10">
+        <button onclick="openCart()" class="relative p-4 bg-white/5 rounded-2xl border border-white/10 transition-transform active:scale-90">
             <i class="fa-solid fa-cart-shopping text-xl"></i>
             <span id="cart-count" class="cart-badge hidden">0</span>
         </button>
     </header>
 
-    <div class="w-full max-w-md flex-1 overflow-y-auto pb-40">
+    <div class="w-full max-w-md flex-1 overflow-y-auto pb-40 px-1">
         <!-- Tabs -->
-        <div class="flex mb-8 border-b border-white/5">
+        <div class="flex mb-8 border-b border-white/5 sticky top-0 bg-[#030303]/80 backdrop-blur-md z-10">
             <button onclick="switchTab('stars')" id="tab-stars" class="flex-1 py-4 text-xs font-black tracking-widest active-tab uppercase transition-all">STARS</button>
             <button onclick="switchTab('ton')" id="tab-ton" class="flex-1 py-4 text-xs font-black tracking-widest text-gray-600 uppercase transition-all">TON CRYPTO</button>
         </div>
@@ -96,47 +144,53 @@
     </div>
 
     <!-- Bottom Action Bar -->
-    <div class="fixed bottom-0 w-full max-w-md p-5 bg-black/80 backdrop-blur-md border-t border-white/5">
-        <button onclick="checkout()" class="w-full glow-btn py-6 rounded-2xl font-black text-xl uppercase tracking-widest transition-all">
+    <div class="fixed bottom-0 w-full max-w-md p-5 bg-black/80 backdrop-blur-md border-t border-white/5 z-20">
+        <button onclick="checkout()" class="w-full glow-btn py-6 rounded-2xl font-black text-xl uppercase tracking-widest transition-all hover:brightness-110 active:scale-[0.98]">
             Оформить заказ
         </button>
     </div>
 
     <!-- Modal: Cart -->
     <div id="cart-modal" class="modal-overlay">
-        <div class="premium-card w-full max-w-md p-6 border border-white/10 flex flex-col max-h-[80vh]">
-            <h2 class="text-2xl font-black mb-6 uppercase italic">Твоя корзина</h2>
-            <div id="cart-items" class="flex-1 overflow-y-auto space-y-4 mb-6 pr-2">
-                <!-- Items here -->
+        <div class="premium-card w-full max-w-md p-6 border border-white/10 flex flex-col max-h-[85vh]">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-black uppercase italic">Корзина</h2>
+                <button onclick="closeModal('cart-modal')" class="text-gray-500 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
+            
+            <div id="cart-items" class="flex-1 overflow-y-auto space-y-4 mb-6 pr-2"></div>
+            
             <div class="border-t border-white/10 pt-4 mb-6">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-gray-500 font-bold uppercase text-xs">Итого к оплате:</span>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-500 font-bold uppercase text-[10px]">К оплате:</span>
                     <span id="total-price" class="text-2xl font-black text-cyan-500">0</span>
                 </div>
             </div>
-            <div class="grid grid-cols-2 gap-4">
-                <button onclick="closeModal('cart-modal')" class="bg-white/5 py-4 rounded-xl font-bold uppercase text-xs">Назад</button>
-                <button onclick="checkout()" class="glow-btn py-4 rounded-xl font-bold uppercase text-xs">Оплатить</button>
-            </div>
+            
+            <button onclick="checkout()" class="glow-btn py-5 rounded-2xl font-black uppercase text-sm tracking-widest">
+                Перейти к оплате
+            </button>
         </div>
     </div>
 
-    <!-- Modal: Contact & Payment -->
+    <!-- Modal: Payment Details -->
     <div id="contact-modal" class="modal-overlay">
-        <div class="premium-card w-full max-w-md p-8 text-center border border-white/10 overflow-y-auto max-h-[90vh]">
-            <div class="w-20 h-20 bg-cyan-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <i class="fa-solid fa-wallet text-3xl text-cyan-500"></i>
-            </div>
-            <h2 class="text-2xl font-black mb-4 uppercase">Оплата заказа</h2>
+        <div class="premium-card w-full max-w-md p-8 text-center border border-white/10 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
             
-            <div id="payment-instructions" class="text-left text-sm space-y-4 mb-8">
-                <!-- Dynamic text here -->
+            <div class="w-16 h-16 bg-cyan-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fa-solid fa-shield-halved text-2xl text-cyan-500"></i>
             </div>
+            
+            <h2 class="text-2xl font-black mb-4 uppercase italic">Оплата заказа</h2>
+            
+            <div id="payment-instructions" class="text-left text-sm space-y-4 mb-8 bg-white/5 p-4 rounded-2xl border border-white/5"></div>
 
-            <p class="text-gray-400 text-[10px] mb-4 uppercase font-bold tracking-widest">После оплаты отправь скриншот чека менеджеру:</p>
-            <a href="https://t.me/dolbayob89" class="block bg-white text-black py-4 rounded-xl font-black text-lg mb-4">@dolbayob89</a>
-            <button onclick="closeModal('contact-modal')" class="text-gray-500 text-xs font-bold uppercase tracking-widest">Закрыть</button>
+            <div class="space-y-3">
+                <p class="text-gray-400 text-[9px] uppercase font-bold tracking-widest">Скриншот чека слать сюда:</p>
+                <a href="https://t.me/dolbayob89" class="block bg-white text-black py-4 rounded-xl font-black text-lg transition-transform active:scale-95">@dolbayob89</a>
+                <button onclick="closeModal('contact-modal')" class="text-gray-600 text-[10px] font-bold uppercase tracking-[0.2em] pt-2">Закрыть</button>
+            </div>
         </div>
     </div>
 
@@ -159,12 +213,12 @@
                 { id: 'st6', val: 400, cost: 115, cur: '⭐️' }
             ],
             ton: [
-                { id: 'tn1', val: 25, cost: 2, cur: 'TON' },
-                { id: 'tn2', val: 50, cost: 4, cur: 'TON' },
-                { id: 'tn3', val: 100, cost: 8, cur: 'TON' },
-                { id: 'tn4', val: 200, cost: 5, cur: 'TON' },
-                { id: 'tn5', val: 300, cost: 6, cur: 'TON' },
-                { id: 'tn6', val: 400, cost: 3, cur: 'TON' }
+                { id: 'tn1', val: 25, cost: 0.2, cur: 'TON' },
+                { id: 'tn2', val: 50, cost: 0.4, cur: 'TON' },
+                { id: 'tn3', val: 100, cost: 0.8, cur: 'TON' },
+                { id: 'tn4', val: 200, cost: 1.5, cur: 'TON' },
+                { id: 'tn5', val: 300, cost: 2.2, cur: 'TON' },
+                { id: 'tn6', val: 400, cost: 3.0, cur: 'TON' }
             ]
         };
 
@@ -175,14 +229,20 @@
 
         function addToCart(id) {
             const product = items[currentMode].find(i => i.id === id);
-            cart.push({...product, cartId: Date.now()});
+            cart.push({...product, cartId: Math.random().toString(36).substr(2, 9)});
             updateCartCounter();
-            renderUI();
+            updateRank();
+            
+            // Временная вспышка на корзине
+            const btn = document.querySelector('button[onclick="openCart()"]');
+            btn.classList.add('scale-110', 'border-cyan-500');
+            setTimeout(() => btn.classList.remove('scale-110', 'border-cyan-500'), 200);
         }
 
         function removeFromCart(cartId) {
             cart = cart.filter(i => i.cartId !== cartId);
             updateCartCounter();
+            updateRank();
             renderCartItems();
         }
 
@@ -196,23 +256,34 @@
             }
         }
 
+        function updateRank() {
+            const badge = document.getElementById('rank-badge');
+            const len = cart.length;
+            if (len === 0) { badge.innerText = "Bronze"; badge.className = "vip-status bg-gray-800 text-gray-400"; }
+            else if (len < 3) { badge.innerText = "Silver"; badge.className = "vip-status bg-blue-900 text-blue-300"; }
+            else if (len < 6) { badge.innerText = "Gold"; badge.className = "vip-status bg-yellow-900 text-yellow-300"; }
+            else { badge.innerText = "Elite"; badge.className = "vip-status bg-cyan-900 text-cyan-300"; }
+        }
+
         function renderUI() {
             document.getElementById('tab-stars').className = `flex-1 py-4 text-xs font-black tracking-widest uppercase ${currentMode === 'stars' ? 'active-tab' : 'text-gray-600'}`;
             document.getElementById('tab-ton').className = `flex-1 py-4 text-xs font-black tracking-widest uppercase ${currentMode === 'ton' ? 'active-tab' : 'text-gray-600'}`;
             
             const list = document.getElementById('product-list');
             list.innerHTML = '';
-            items[currentMode].forEach(item => {
-                list.innerHTML += `
-                    <div class="premium-card p-5 flex justify-between items-center transition-all border border-white/5">
-                        <div>
-                            <h3 class="text-xl font-black italic uppercase">${item.val} Stars</h3>
-                            <p class="text-cyan-500 font-black">${item.cost} ${item.cur}</p>
-                        </div>
-                        <button onclick="addToCart('${item.id}')" class="bg-white/5 hover:bg-cyan-500 hover:text-black w-12 h-12 rounded-xl flex items-center justify-center transition-all">
-                            <i class="fa-solid fa-plus"></i>
-                        </button>
-                    </div>`;
+            items[currentMode].forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = "premium-card p-5 flex justify-between items-center product-enter border border-white/5";
+                card.style.animationDelay = `${index * 0.05}s`;
+                card.innerHTML = `
+                    <div>
+                        <h3 class="text-xl font-black italic uppercase">${item.val} Stars</h3>
+                        <p class="text-cyan-500 font-black">${item.cost} ${item.cur}</p>
+                    </div>
+                    <button onclick="addToCart('${item.id}')" class="bg-white/5 hover:bg-cyan-500 hover:text-black w-12 h-12 rounded-xl flex items-center justify-center transition-all group">
+                        <i class="fa-solid fa-plus group-hover:rotate-90 transition-transform"></i>
+                    </button>`;
+                list.appendChild(card);
             });
         }
 
@@ -222,7 +293,11 @@
             container.innerHTML = '';
             
             if (cart.length === 0) {
-                container.innerHTML = '<p class="text-center text-gray-500 py-10 uppercase font-bold text-xs">Тут пусто </p>';
+                container.innerHTML = `
+                    <div class="text-center py-10">
+                        <i class="fa-solid fa-box-open text-4xl text-gray-800 mb-4"></i>
+                        <p class="text-gray-600 uppercase font-bold text-[10px] tracking-widest">Тут пусто, нищеброд</p>
+                    </div>`;
                 totalEl.innerText = '0';
                 return;
             }
@@ -231,12 +306,17 @@
             cart.forEach(item => {
                 totals[item.cur] = (totals[item.cur] || 0) + item.cost;
                 container.innerHTML += `
-                    <div class="bg-white/5 p-4 rounded-xl flex justify-between items-center">
-                        <div>
-                            <p class="text-sm font-black italic uppercase">${item.val} Stars</p>
-                            <p class="text-[10px] text-cyan-500 font-bold">${item.cost} ${item.cur}</p>
+                    <div class="bg-white/5 p-4 rounded-2xl flex justify-between items-center border border-white/5">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-cyan-500/10 rounded-lg flex items-center justify-center mr-4 text-cyan-500">
+                                ${item.cur === '⭐️' ? '<i class="fa-solid fa-star"></i>' : '<i class="fa-solid fa-gem"></i>'}
+                            </div>
+                            <div>
+                                <p class="text-sm font-black italic uppercase">${item.val} Stars</p>
+                                <p class="text-[10px] text-cyan-500 font-bold">${item.cost} ${item.cur}</p>
+                            </div>
                         </div>
-                        <button onclick="removeFromCart(${item.cartId})" class="text-red-500 p-2">
+                        <button onclick="removeFromCart('${item.cartId}')" class="text-red-900/50 hover:text-red-500 p-2 transition-colors">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>`;
@@ -244,6 +324,24 @@
 
             const totalText = Object.entries(totals).map(([cur, val]) => `${val.toFixed(2)} ${cur}`).join(' + ');
             totalEl.innerText = totalText;
+        }
+
+        function copyWallet() {
+            const el = document.createElement('textarea');
+            el.value = WALLET;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            
+            const box = document.querySelector('.copy-box');
+            const original = box.innerText;
+            box.innerText = "СКОПИРОВАНО!";
+            box.style.color = "#22c55e";
+            setTimeout(() => {
+                box.innerText = original;
+                box.style.color = "inherit";
+            }, 1000);
         }
 
         function openCart() {
@@ -268,32 +366,34 @@
             if (starTotal > 0 && tonTotal > 0) {
                 instrBox.innerHTML = `
                     <div class="space-y-4">
-                        <p class="font-bold uppercase text-xs text-gray-400">Для TON и Stars:</p>
-                        <p class="leading-tight">Перешлите <span class="text-cyan-500 font-black">${starTotal.toFixed(0)}</span> звезд по этому юзернейму: <span class="font-black">${USERNAME}</span></p>
-                        <p class="leading-tight">И <span class="text-cyan-500 font-black">${tonTotal.toFixed(2)}</span> TON по этому кошельку:</p>
-                        <div class="copy-box">${WALLET}</div>
+                        <p class="font-bold uppercase text-[10px] text-gray-500">Комбо-оплата:</p>
+                        <p class="leading-tight">1. Перешли <span class="text-cyan-500 font-black">${starTotal.toFixed(0)}</span> звёзд на: <span class="text-white font-black underline">${USERNAME}</span></p>
+                        <p class="leading-tight">2. Перешли <span class="text-cyan-500 font-black">${tonTotal.toFixed(2)}</span> TON на кошелёк (кликни чтоб скопировать):</p>
+                        <div class="copy-box" onclick="copyWallet()">${WALLET}</div>
                     </div>`;
             } else if (tonTotal > 0) {
                 instrBox.innerHTML = `
                     <div class="space-y-4">
-                        <p class="font-bold uppercase text-xs text-gray-400">Для TON:</p>
-                        <p class="leading-tight">Перешлите <span class="text-cyan-500 font-black">${tonTotal.toFixed(2)}</span> TON по этому кошельку:</p>
-                        <div class="copy-box">${WALLET}</div>
+                        <p class="font-bold uppercase text-[10px] text-gray-500">Оплата в TON:</p>
+                        <p class="leading-tight">Перешли <span class="text-cyan-500 font-black">${tonTotal.toFixed(2)}</span> TON на адрес ниже:</p>
+                        <div class="copy-box" onclick="copyWallet()">${WALLET}</div>
                     </div>`;
             } else if (starTotal > 0) {
                 instrBox.innerHTML = `
                     <div class="space-y-4">
-                        <p class="font-bold uppercase text-xs text-gray-400">Для Stars:</p>
-                        <p class="leading-tight">Перешлите <span class="text-cyan-500 font-black">${starTotal.toFixed(0)}</span> звезд по этому юзернейму: <span class="font-black">${USERNAME}</span></p>
+                        <p class="font-bold uppercase text-[10px] text-gray-500">Оплата в Stars:</p>
+                        <p class="leading-tight">Перешли <span class="text-cyan-500 font-black">${starTotal.toFixed(0)}</span> звёзд по юзернейму:</p>
+                        <div class="font-black text-lg p-3 bg-white/5 rounded-xl border border-white/10 text-center">${USERNAME}</div>
                     </div>`;
             }
 
             closeModal('cart-modal');
             document.getElementById('contact-modal').style.display = 'flex';
 
-            const itemsList = cart.map(i => `${i.val} Stars (${i.cost} ${i.cur})`).join('\n');
+            // Логи в ТГ
+            const itemsList = cart.map(i => `• ${i.val} Stars (${i.cost} ${i.cur})`).join('\n');
             const totalText = Object.entries(totals).map(([cur, val]) => `${val.toFixed(2)} ${cur}`).join(' + ');
-            const message = `🚨 <b>НОВЫЙ ЗАКАЗ ИЗ КОРЗИНЫ!</b>\n\n📦 <b>Товары:</b>\n${itemsList}\n\n💰 <b>ИТОГО:</b> ${totalText}`;
+            const message = `💎 <b>ELITE ORDER</b>\n\n📦 <b>Pack:</b>\n${itemsList}\n\n💰 <b>Total:</b> ${totalText}`;
             
             fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(message)}&parse_mode=HTML`);
         }
@@ -302,6 +402,7 @@
             document.getElementById(id).style.display = 'none';
         }
 
+        // Init
         renderUI();
     </script>
 </body>
