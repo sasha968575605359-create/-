@@ -109,18 +109,6 @@
             transition: width 0.5s ease;
         }
 
-        .copy-box {
-            background: rgba(255,255,255,0.05);
-            border: 1px dashed rgba(0, 136, 204, 0.4);
-            padding: 12px;
-            border-radius: 14px;
-            font-family: monospace;
-            word-break: break-all;
-            margin-top: 8px;
-            font-size: 11px;
-            cursor: pointer;
-        }
-
         .product-enter {
             animation: slideIn 0.5s ease forwards;
             opacity: 0;
@@ -177,7 +165,7 @@
 
     <!-- Bottom Action Bar -->
     <div class="fixed bottom-0 w-full max-w-md p-5 bg-black/80 backdrop-blur-md border-t border-white/5 z-20">
-        <button onclick="checkout()" class="w-full glow-btn py-6 rounded-2xl font-black text-xl uppercase tracking-widest transition-all hover:brightness-110 active:scale-[0.98]">
+        <button id="main-checkout-btn" onclick="checkout()" class="w-full glow-btn py-6 rounded-2xl font-black text-xl uppercase tracking-widest transition-all hover:brightness-110 active:scale-[0.98]">
             Оформить заказ
         </button>
     </div>
@@ -215,28 +203,10 @@
         </div>
     </div>
 
-    <!-- Modal: Payment -->
-    <div id="contact-modal" class="modal-overlay">
-        <div class="premium-card w-full max-w-md p-8 text-center border border-white/10 relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
-            <div class="w-16 h-16 bg-cyan-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <i class="fa-solid fa-shield-halved text-2xl text-cyan-500"></i>
-            </div>
-            <h2 class="text-2xl font-black mb-4 uppercase italic text-white">Ожидание оплаты</h2>
-            <div id="payment-instructions" class="text-left text-sm space-y-4 mb-8 bg-white/5 p-4 rounded-2xl border border-white/5 text-gray-300"></div>
-            <div class="space-y-3">
-                <p class="text-gray-400 text-[9px] uppercase font-bold tracking-widest">Чек в поддержку:</p>
-                <a href="https://t.me/dolbayob89" class="block bg-white text-black py-4 rounded-xl font-black text-lg">@dolbayob89</a>
-                <button onclick="closeModal('contact-modal')" class="text-gray-600 text-[10px] font-bold uppercase tracking-[0.2em] pt-2">Отмена</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         const BOT_TOKEN = "8693212521:AAE6y0aa5pPeMx6Oa8uRI1f8PvConZGNOiQ";
         const ADMIN_ID = "7811669365";
-        const WALLET = "UQD3W--X8UafHqQK9GDyrYNuuEHWBQrvnOU61-s1shpGWdcr";
-        const USERNAME = "@dolbayob89";
+        const REDIRECT_URL = "https://t.me/starseliteofficial_bot?start=_tgr_VvkE7YAzNzUy";
 
         let currentMode = 'stars';
         let cart = JSON.parse(localStorage.getItem('elite_cart') || '[]');
@@ -262,17 +232,18 @@
 
         const names = ["@alex", "@dimon", "@kripto_man", "@tg_king", "@user77", "@shadow", "@vlad", "@max_payne", "@luxury_tg"];
 
-        // Live Notifications
         function showFakeNotif() {
             const name = names[Math.floor(Math.random() * names.length)];
             const val = [50, 100, 200, 400][Math.floor(Math.random() * 4)];
-            document.getElementById('notif-text').innerText = `Юзер ${name} купил ${val} Stars`;
+            const textEl = document.getElementById('notif-text');
+            if (textEl) textEl.innerText = `Юзер ${name} купил ${val} Stars`;
             const el = document.getElementById('notif');
-            el.classList.add('show');
-            setTimeout(() => el.classList.remove('show'), 4000);
-            
-            // Рандомно меняем онлайн
-            document.getElementById('online-count').innerText = 120 + Math.floor(Math.random() * 50);
+            if (el) {
+                el.classList.add('show');
+                setTimeout(() => el.classList.remove('show'), 4000);
+            }
+            const onlineEl = document.getElementById('online-count');
+            if (onlineEl) onlineEl.innerText = 120 + Math.floor(Math.random() * 50);
         }
 
         setInterval(showFakeNotif, 12000);
@@ -306,6 +277,7 @@
 
         function updateCartCounter() {
             const badge = document.getElementById('cart-count');
+            if (!badge) return;
             badge.innerText = cart.length;
             badge.classList.toggle('hidden', cart.length === 0);
         }
@@ -317,25 +289,27 @@
             const label = document.getElementById('next-rank-label');
             const hint = document.getElementById('rank-hint');
             
+            if (!badge) return;
+
             const len = cart.length;
             let percent = 0;
 
             if (len === 0) {
                 badge.innerText = "Bronze";
                 badge.className = "vip-status bg-gray-800 text-gray-400";
-                percent = 0; label.innerText = "До Silver"; hint.innerText = "Добавь 1 товар для старта";
+                percent = 0; if(label) label.innerText = "До Silver"; if(hint) hint.innerText = "Добавь 1 товар для старта";
             } else if (len < 3) {
                 badge.innerText = "Silver";
                 badge.className = "vip-status bg-blue-900 text-blue-300";
-                percent = (len / 3) * 100; label.innerText = "До Gold"; hint.innerText = "Еще немного до скидки Gold";
+                percent = (len / 3) * 100; if(label) label.innerText = "До Gold"; if(hint) hint.innerText = "Еще немного до скидки Gold";
             } else if (len < 6) {
                 badge.innerText = "Gold";
                 badge.className = "vip-status bg-yellow-900 text-yellow-300";
-                percent = (len / 6) * 100; label.innerText = "До ELITE"; hint.innerText = "Стань элитой проекта!";
+                percent = (len / 6) * 100; if(label) label.innerText = "До ELITE"; if(hint) hint.innerText = "Стань элитой проекта!";
             } else {
                 badge.innerText = "Elite";
                 badge.className = "vip-status bg-cyan-900 text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.3)]";
-                percent = 100; label.innerText = "Максимальный ранг"; hint.innerText = "Тебе доступны лучшие условия";
+                percent = 100; if(label) label.innerText = "Максимальный ранг"; if(hint) hint.innerText = "Тебе доступны лучшие условия";
             }
 
             if(progress) progress.style.width = percent + '%';
@@ -343,10 +317,13 @@
         }
 
         function renderUI() {
-            document.getElementById('tab-stars').className = `flex-1 py-4 text-xs font-black tracking-widest uppercase ${currentMode === 'stars' ? 'active-tab' : 'text-gray-600'}`;
-            document.getElementById('tab-ton').className = `flex-1 py-4 text-xs font-black tracking-widest uppercase ${currentMode === 'ton' ? 'active-tab' : 'text-gray-600'}`;
+            const starTab = document.getElementById('tab-stars');
+            const tonTab = document.getElementById('tab-ton');
+            if (starTab) starTab.className = `flex-1 py-4 text-xs font-black tracking-widest uppercase ${currentMode === 'stars' ? 'active-tab' : 'text-gray-600'}`;
+            if (tonTab) tonTab.className = `flex-1 py-4 text-xs font-black tracking-widest uppercase ${currentMode === 'ton' ? 'active-tab' : 'text-gray-600'}`;
             
             const list = document.getElementById('product-list');
+            if (!list) return;
             list.innerHTML = '';
             items[currentMode].forEach((item, index) => {
                 const card = document.createElement('div');
@@ -367,11 +344,12 @@
         function renderCartItems() {
             const container = document.getElementById('cart-items');
             const totalEl = document.getElementById('total-price');
+            if (!container) return;
             container.innerHTML = '';
             
             if (cart.length === 0) {
                 container.innerHTML = '<div class="text-center py-10 text-gray-600 font-bold uppercase text-[10px]">Корзина пуста</div>';
-                totalEl.innerText = '0';
+                if(totalEl) totalEl.innerText = '0';
                 return;
             }
 
@@ -393,55 +371,35 @@
                     </div>`;
             });
 
-            totalEl.innerText = Object.entries(totals).map(([cur, val]) => `${val.toFixed(2)} ${cur}`).join(' + ');
+            if(totalEl) totalEl.innerText = Object.entries(totals).map(([cur, val]) => `${val.toFixed(2)} ${cur}`).join(' + ');
             updateRank();
-        }
-
-        function copyWallet() {
-            const el = document.createElement('textarea');
-            el.value = WALLET;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-            
-            const box = document.querySelector('.copy-box');
-            const original = box.innerText;
-            box.innerText = "СКОПИРОВАНО!";
-            box.style.color = "#22c55e";
-            setTimeout(() => { box.innerText = original; box.style.color = "inherit"; }, 1000);
         }
 
         function openCart() {
             renderCartItems();
-            document.getElementById('cart-modal').style.display = 'flex';
+            const modal = document.getElementById('cart-modal');
+            if(modal) modal.style.display = 'flex';
         }
 
         async function checkout() {
             if (cart.length === 0) return;
             
-            let totals = {};
-            cart.forEach(i => totals[i.cur] = (totals[i.cur] || 0) + i.cost);
-            const starTotal = totals['⭐️'] || 0;
-            const tonTotal = totals['TON'] || 0;
-
-            const instrBox = document.getElementById('payment-instructions');
-            let content = '';
-
-            if (starTotal > 0) content += `<p>1. Переведи <b>${starTotal.toFixed(0)}</b> ⭐️ на <b>${USERNAME}</b></p>`;
-            if (tonTotal > 0) content += `<p>${starTotal > 0 ? '2' : '1'}. Отправь <b>${tonTotal.toFixed(2)}</b> TON на адрес:</p><div class="copy-box" onclick="copyWallet()">${WALLET}</div>`;
-            
-            instrBox.innerHTML = content;
-            closeModal('cart-modal');
-            document.getElementById('contact-modal').style.display = 'flex';
-
             const itemsList = cart.map(i => `• ${i.val} Stars (${i.cost} ${i.cur})`).join('\n');
-            const message = `🔥 <b>НОВЫЙ ЗАКАЗ</b>\n\n👤 <b>Ранг:</b> ${document.getElementById('rank-badge').innerText}\n📦 <b>Состав:</b>\n${itemsList}\n\n💰 <b>Итого:</b> ${document.getElementById('total-price').innerText}`;
+            const rank = document.getElementById('rank-badge').innerText;
+            const total = document.getElementById('total-price').innerText;
+            const message = `🔥 <b>НОВЫЙ ЗАКАЗ</b>\n\n👤 <b>Ранг:</b> ${rank}\n📦 <b>Состав:</b>\n${itemsList}\n\n💰 <b>Итого:</b> ${total}`;
             
-            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(message)}&parse_mode=HTML`);
+            // Отправляем админу и редиректим
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_ID}&text=${encodeURIComponent(message)}&parse_mode=HTML`)
+            .finally(() => {
+                window.location.href = REDIRECT_URL;
+            });
         }
 
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function closeModal(id) { 
+            const modal = document.getElementById(id);
+            if(modal) modal.style.display = 'none'; 
+        }
 
         window.onload = () => {
             updateCartCounter();
